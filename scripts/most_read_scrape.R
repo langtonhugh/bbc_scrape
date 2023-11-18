@@ -29,8 +29,8 @@ most_read_node <- whole_page %>%
 most_read_df <- most_read_node %>%
   html_text() %>% 
   as_tibble() %>% 
-  mutate(order = 1:10) %>% 
-  select(order, value)
+  mutate(order_var = 1:10) %>% 
+  select(order_var, value)
 
 # Get the attributes associated with each.
 att <- most_read_node %>% 
@@ -56,7 +56,7 @@ time_stamp <- unique(most_read_url_df$scrape_date) %>%
 
 # Save.
 write_csv(x = most_read_url_df,
-          file = paste("scrapes/most_read_url", time_stamp, ".csv"))
+          file = paste0("scrapes/most_read_url_", time_stamp, ".csv"))
 
 # Sleep for 5 minutes before repeat.
 Sys.sleep(300)
