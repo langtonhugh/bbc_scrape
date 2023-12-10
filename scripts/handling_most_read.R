@@ -16,6 +16,9 @@ scrapes_list <- paste("scrapes/", list.files("scrapes", pattern = glob2rx("*.csv
 # Load them all in.
 scrapes_df_list <- pblapply(scrapes_list, read.csv)
 
+# Is the contents as expected? 10 rows in each?
+table(as.numeric(lapply(scrapes_df_list, nrow)))
+
 # Row bind them together.
 scrapes_df <- bind_rows(scrapes_df_list)
 
@@ -28,7 +31,11 @@ scrapes_df <- scrapes_df %>%
 scrapes_df %>% 
   distinct(scrape_date_lub) %>%
   ggplot(data = .) +
-  geom_point(mapping = aes(x = scrape_date_lub, y = 1))
+  geom_point(mapping = aes(x = scrape_date_lub, y = 1),
+             fill = "red", colour = "red", shape = 21, alpha = 0.1)
+
+# Unique dates?
+length(unique(scrapes_df$scrape_date))
 
 # Calculate time different between scrapes.
 time_diff_df <- scrapes_df %>% 
@@ -67,12 +74,17 @@ case_scrape_df %>%
   scale_x_datetime(date_breaks = '1 day') +
   theme(axis.text.x = element_text(angle = 90) )
 
+# Now we define 7-days. Nice and round, but it helps with weekly
+# analysis.
+case_scrape_week_df <- case_scrape_df %>% 
+  filter(scrape_date >= "2023-11-03" & scrape_date <= "2023-11-10")
+
 # Did any of the URL scrapes actually work? No.
-sum(is.na(case_scrape_df$url)) 
-sum(is.na(case_scrape_df$url)) == nrow(case_scrape_df) # TRUE
+sum(is.na(case_scrape_week_df$url)) 
+sum(is.na(case_scrape_week_df$url)) == nrow(case_scrape_week_df) # TRUE
 
 # Resolve the change in the order variable.
-case_scrape_clean_df <- case_scrape_df %>% 
+case_scrape_clean_df <- case_scrape_week_df %>% 
   mutate(order = ifelse(is.na(order), order_var, order)) %>% 
   select(order, value, scrape_date_lub)
 
@@ -108,32 +120,34 @@ case_scrape_clean_df <- case_scrape_clean_df %>%
          hour_lub       = hour(scrape_date_lub),
          week_numbr_lub = (day_numbr_lub-1)*24+(hour_lub))
 
-# Get the most popular per hour of the week.
-weekly_hour_pop_df <- case_scrape_clean_df %>% 
-  group_by(week_numbr_lub, value_clean) %>% 
-  tally() 
-  
+# Check the combos.
+combos_df <- case_scrape_clean_df %>% 
+  distinct(week_numbr_lub, day_label_lub)
 
+# Are there actually the same number of scrapes per hour?
+# Pretty much. A small number have 11 due to time shifts.
+hourly_scrapes_df <- case_scrape_clean_df %>% 
+  group_by(week_numbr_lub) %>% 
+  summarise(total_scaprs = n()/10)
 
-
-# Identify only those stories that reached number 1.
-number_ones_vec <- example_days_df %>% 
-  filter(order == 1) %>% 
-  distinct(value) %>% 
-  pluck("value")
+# Identify Matt Perry's.
+matt_vec <- case_scrape_clean_df %>% 
+  filter(str_detect(value_clean, "Israel|Gaza")) %>% 
+  distinct(value_clean) %>% 
+  pluck("value_clean")
 
 # Flag these in our data.
-example_days_df <- example_days_df %>% 
-  mutate(number_ones         = if_else(value %in% number_ones_vec, value, "Never hit number 1"),
-         numer_ones_fac      = fct_relevel(number_ones, "Never hit number 1"),
-         numer_ones_flag     = if_else(numer_ones_fac != "Never hit number 1", "yes", "no"),
-         numer_ones_flag_fac = as.factor(numer_ones_flag),
-         order_fac = fct_rev(as.factor(order)) ) %>% 
-  left_join(number_ones_themed_df) %>% 
-  mutate(theme = ifelse(is.na(theme), "Never hit number 1", theme),
-         theme = fct_relevel(theme, "Never hit number 1"))
+case_scrape_clean_df <- case_scrape_clean_df %>% 
+  mutate(matt_flag = ifelse(value %in% matt_vec, "perry_flag", "other"))
 
-# First, auto specify how many number ones we actually have.
+# Plot.
+ggplot(data = case_scrape_clean_df) +
+  geom_point(mapping = aes(x = week_numbr_lub, y = order, colour = matt_flag)) +
+  geom_line(mapping = aes(x = week_numbr_lub, y = order, colour = matt_flag))
+
+
+
+s# First, auto specify how many number ones we actually have.
 n_number_ones_vec <- length(unique(example_days_df$numer_ones_fac))-1
 
 # Colour scheme define.
