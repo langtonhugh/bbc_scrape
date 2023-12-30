@@ -11,38 +11,35 @@ library(stringr)
 library(ggplot2)
 
 # List all the scraped files.
-scrapes_list <- paste("scrapes/", list.files("scrapes", pattern = glob2rx("*.csv"),  recursive=TRUE), sep = "")
+scrapes_list <- paste0("scrapes/", list.files("scrapes", pattern = "*.csv"))
 
-# Load them all in.
+# Load them all in (base-like).
 scrapes_df_list <- pblapply(scrapes_list, read.csv)
 
-# Is the contents as expected? 10 rows in each?
-table(as.numeric(lapply(scrapes_df_list, nrow)))
+# # Load them in and row bind (mostly tidyverse).
+# scrapes_df <- map_dfr(scrapes_list, read.csv)
 
-# Row bind them together.
-scrapes_df <- bind_rows(scrapes_df_list)
-
-# Make sure dates are dates.
-scrapes_df <- scrapes_df %>% 
+# Row bind and initial handling.
+scrapes_df <- scrapes_df_list %>% 
+  bind_rows() %>% 
   mutate(scrape_date_lub = ymd_hms(scrape_date)) %>% 
   as_tibble()
 
 # Plot the date range.
 scrapes_df %>% 
   distinct(scrape_date_lub) %>%
-  ggplot(data = .) +
-  geom_point(mapping = aes(x = scrape_date_lub, y = 1),
-             fill = "red", colour = "red", shape = 21, alpha = 0.1)
+  ggplot() +
+  geom_point(mapping = aes(x = scrape_date_lub, y = 1))
 
-# Unique dates?
-length(unique(scrapes_df$scrape_date))
+# Is every scrape a unique date?
+length(unique(scrapes_df$scrape_date)) 
 
 # Calculate time different between scrapes.
 time_diff_df <- scrapes_df %>% 
   arrange(scrape_date_lub) %>% 
   distinct(scrape_date_lub) %>% 
   mutate(scrape_date_lagged = lag(scrape_date_lub),
-         time_diff = as.numeric(scrape_date_lub-scrape_date_lagged)/60) %>% 
+         time_diff          = as.numeric(scrape_date_lub-scrape_date_lagged)/60) %>% 
   drop_na(scrape_date_lagged)
 
 # Calculate how long continious scrapes have lasted for. We ask for 5 minutes
@@ -79,7 +76,7 @@ case_scrape_df %>%
 case_scrape_week_df <- case_scrape_df %>% 
   filter(scrape_date >= "2023-11-03" & scrape_date <= "2023-11-10")
 
-# Did any of the URL scrapes actually work? No.
+# Did any of the URL scrapes actually work?
 sum(is.na(case_scrape_week_df$url)) 
 sum(is.na(case_scrape_week_df$url)) == nrow(case_scrape_week_df) # TRUE
 
@@ -130,7 +127,7 @@ hourly_scrapes_df <- case_scrape_clean_df %>%
   group_by(week_numbr_lub) %>% 
   summarise(total_scaprs = n()/10)
 
-# Identify Matt Perry's.
+# Identify an example topic.
 matt_vec <- case_scrape_clean_df %>% 
   filter(str_detect(value_clean, "Israel|Gaza")) %>% 
   distinct(value_clean) %>% 
