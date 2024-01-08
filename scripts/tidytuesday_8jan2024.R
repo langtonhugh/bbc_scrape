@@ -38,7 +38,7 @@ most_pop_df <- scrapes_df %>%
   arrange(order_var) %>% 
   slice(1)
 
-# What's your keyword?
+# What's your keyword(s)?
 interest_words <- "hamburg airport"
 
 # Identify a specific story.
@@ -60,13 +60,13 @@ col_scheme <- c("grey95", brewer.pal(n = n_stories_vec, name = "Set2"))
 
 # Tile plot.
 tile_gg <- ggplot(data = scrapes_df) +
-  geom_tile(mapping = aes(x = date_round, y = order_var, fill = interest_label)) +
+  geom_tile(mapping = aes(x = scrape_date, y = order_var, fill = interest_label)) +
   scale_fill_manual(values = col_scheme) +
   scale_y_reverse(breaks = c(1:10)) +
   theme_bw() +
   labs(title    = paste("BBC Top 10 'most read' involving the term:", interest_words),
        subtitle = paste("Time range between", min(scrapes_df$date_round), "and", max(scrapes_df$date_round) ),
-       fill = NULL, x = "day", y = "Top 10 ranking") +
+       fill = NULL, x = NULL, y = "Top 10 ranking") +
   guides(fill = guide_legend(nrow = 4)) +
   theme(legend.position = "bottom") 
 
