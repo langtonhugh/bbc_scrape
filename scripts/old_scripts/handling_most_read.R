@@ -1,23 +1,14 @@
 # Packages.
-library(readr)
-library(openxlsx)
 library(dplyr)
-library(purrr)
-library(tidyr)
-library(forcats)
-library(pbapply)
 library(lubridate)
-library(stringr)
+library(pbapply)
 library(ggplot2)
 
 # List all the scraped files.
-scrapes_list <- paste("scrapes/", list.files("scrapes", pattern = glob2rx("*.csv"),  recursive=TRUE), sep = "")
+scrapes_list <- paste0("scrapes_subset/", list.files("scrapes_subset", pattern = "*.csv"))
 
 # Load them all in.
 scrapes_df_list <- pblapply(scrapes_list, read.csv)
-
-# Is the contents as expected? 10 rows in each?
-table(as.numeric(lapply(scrapes_df_list, nrow)))
 
 # Row bind them together.
 scrapes_df <- bind_rows(scrapes_df_list)
@@ -27,14 +18,7 @@ scrapes_df <- scrapes_df %>%
   mutate(scrape_date_lub = ymd_hms(scrape_date)) %>% 
   as_tibble()
 
-# Plot the date range.
-scrapes_df %>% 
-  distinct(scrape_date_lub) %>%
-  ggplot(data = .) +
-  geom_point(mapping = aes(x = scrape_date_lub, y = 1),
-             fill = "red", colour = "red", shape = 21, alpha = 0.1)
-
-# Unique dates?
+# Unique dates / scrapes?
 length(unique(scrapes_df$scrape_date))
 
 # Calculate time different between scrapes.

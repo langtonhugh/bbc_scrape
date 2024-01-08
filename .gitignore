@@ -1,3 +1,7 @@
+# Data ignores.
+scrapes/*
+scrapes_subset/*
+
 # History files
 .Rhistory
 .Rapp.history
