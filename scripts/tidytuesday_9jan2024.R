@@ -14,29 +14,11 @@ scrapes_df <- read_csv("data/tt_subset.csv")
 min(scrapes_df$scrape_date)
 max(scrapes_df$scrape_date)
 
-# Create new time units.
-scrapes_df <- scrapes_df %>% 
-  mutate(date_round = round_date(scrape_date, "hour"),
-         date_lub   = date(scrape_date),
-         wday_lub   = wday(scrape_date))
-
-# Check scrape counts per day.
-scrapes_df %>%
-  distinct(scrape_date, .keep_all = TRUE) %>% 
-  group_by(date_lub) %>% 
-  tally()
-
 # Top read orders.
 order_value_df <- scrapes_df %>% 
   group_by(order_var, article_title) %>% 
   tally() %>% 
   arrange(desc(n)) 
-
-# Most read by hour of the week.
-most_pop_df <- scrapes_df %>% 
-  group_by(date_round) %>% 
-  arrange(order_var) %>% 
-  slice(1)
 
 # What's your keyword(s)?
 interest_words <- "hamburg airport"
