@@ -1,13 +1,7 @@
 # Packages.
-library(readr)
-library(openxlsx)
 library(dplyr)
-library(purrr)
-library(tidyr)
-library(forcats)
-library(pbapply)
 library(lubridate)
-library(stringr)
+library(pbapply)
 library(ggplot2)
 
 # List all the scraped files.
@@ -33,6 +27,17 @@ scrapes_df %>%
 
 # Is every scrape a unique date?
 length(unique(scrapes_df$scrape_date)) 
+
+# Row bind them together.
+scrapes_df <- bind_rows(scrapes_df_list)
+
+# Make sure dates are dates.
+scrapes_df <- scrapes_df %>% 
+  mutate(scrape_date_lub = ymd_hms(scrape_date)) %>% 
+  as_tibble()
+
+# Unique dates / scrapes?
+length(unique(scrapes_df$scrape_date))
 
 # Calculate time different between scrapes.
 time_diff_df <- scrapes_df %>% 
