@@ -1,6 +1,7 @@
 # Data ignores.
 scrapes/*
 scrapes_subset/*
+scripts/demo_tidytuesday_9jan2024.R
 
 # History files
 .Rhistory
