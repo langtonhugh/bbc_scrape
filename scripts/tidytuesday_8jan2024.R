@@ -44,9 +44,6 @@ interest_words <- "hamburg airport"
 # Identify a specific story.
 scrapes_df <- scrapes_df %>% 
   mutate(article_title_lower = str_to_lower(article_title),
-         interest_flag  = if_else(condition = str_detect(article_title_lower, interest_words),
-                                 true  = "yes",
-                                 false = "no"),
          interest_label = if_else(condition = str_detect(article_title_lower, interest_words),
                                  true = article_title,
                                  false = "Other"),

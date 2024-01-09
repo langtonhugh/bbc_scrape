@@ -3,6 +3,13 @@
 # === Alternative visuals ======================================================
 # ==============================================================================
 
+# Handling to create the flag.
+# mutate(
+#   interest_flag  = if_else(condition = str_detect(article_title_lower, interest_words),
+#                          true  = "yes",
+#                          false = "no")
+# )
+
 # # Plot.
 # scrapes_df %>% 
 #   ggplot(data = .) +
