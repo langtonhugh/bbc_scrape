@@ -41,8 +41,8 @@ att_links <- lapply(att, function(x) x[[2]])
 
 # Add the URLs to our existing tibble.
 url_df <- tibble(
-  url = lapply(att_links, paste)
-)
+  url = as.character(lapply(att_links, paste))
+) 
 
 # Stick back to our most read table and add the scrape timestamp.
 most_read_url_df <- most_read_df %>% 
@@ -56,7 +56,7 @@ time_stamp <- unique(most_read_url_df$scrape_date) %>%
 
 # Save.
 write_csv(x = most_read_url_df,
-          file = paste0("scrapes/most_read_url_", time_stamp, ".csv"))
+          file = paste0("scrapes/10jan2024_onward/most_read_url_", time_stamp, ".csv"))
 
 # Sleep for 5 minutes before repeat.
 Sys.sleep(300)
