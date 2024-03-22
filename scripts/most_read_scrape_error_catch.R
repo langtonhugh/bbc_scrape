@@ -30,9 +30,9 @@ for (attempt in 1:max_retries) {
     
     # Pull most read element(s).
     most_read_node <- whole_page %>%
-      html_element(xpath = "//div[@class = 'nw-c-most-read__items gel-layout gel-layout--no-flex']") %>% 
+      html_element(xpath = "//div[@class = 'nw-c-most-read__items gel-layout gel-layout--no-flex']") %>%
       html_elements(xpath = ".//a")
-    
+
     # Get the text and make into a table.
     most_read_df <- most_read_node %>%
       html_text() %>% 
