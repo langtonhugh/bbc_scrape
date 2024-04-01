@@ -75,7 +75,7 @@ write.csv(no1_time_df, file = paste0("output/no1_time_", scrape_folder, ".csv"))
 #   filter(date(scrape_date) == "2024-01-31")
 
 # What's your keyword(s)?
-interest_words <- "putin"
+interest_words <- "taylor swift"
 
 # Identify a specific story.
 scrapes_clean_df <- scrapes_clean_df %>%
