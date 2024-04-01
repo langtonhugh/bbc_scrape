@@ -1,7 +1,9 @@
-# Data ignores.
-scrapes/*
-scrapes_subset/*
+# New ignores.
 scripts/demo_tidytuesday_9jan2024.R
+scrapes/scrapes_subset
+scrapes/scrapes_2023_2024_patchy
+scrapes/10jan2024_09feb2024
+scrapes/12feb2024_20feb2024
 
 # History files
 .Rhistory

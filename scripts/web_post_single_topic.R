@@ -7,8 +7,21 @@ library(forcats)
 library(pbapply)
 library(ggplot2)
 
-# List all the scraped files.
-scrapes_list <- paste0("scrapes/10jan2024_09feb2024/", list.files("scrapes/10jan2024_09feb2024", pattern = "*.csv"))
+# Folder date range of interest.
+scrape_folder <- "10jan2024_09feb2024"
+
+# Unzip folder containing scrapes.
+unzip(zipfile = paste0("scrapes/", scrape_folder, ".zip"), exdir = "scrapes", overwrite = FALSE)
+
+# Paste together the working directory location, together with all the csv file names.
+scrapes_list <- paste0(
+  # the working directory folder leading to the csv.
+  "scrapes/", scrape_folder, "/", 
+  # list all the csvs in that folder.
+                       list.files(
+                         paste0("scrapes/", scrape_folder),
+                         pattern = "*.csv")
+                       )
 
 # Load them all in.
 scrapes_df_list <- pblapply(scrapes_list, read.csv)
@@ -36,7 +49,7 @@ top10_time_df <- scrapes_clean_df %>%
   arrange(desc(n)) 
 
 # Save.
-write.csv(top10_time_df, file = "output/top10_time.csv")
+write.csv(top10_time_df, file = paste0("output/top10_time_", scrape_folder ,".csv"))
 
 # Time spent in each ranking position during the period.
 ranking_time_df <- scrapes_clean_df %>% 
@@ -48,21 +61,21 @@ ranking_time_df <- scrapes_clean_df %>%
   arrange(desc(n)) 
 
 # Save.
-write.csv(ranking_time_df, file = "output/tanking_time.csv")
+write.csv(ranking_time_df, file = paste0("output/ranking_time_", scrape_folder, ".csv"))
 
 # What about only stories that made number 1?
 no1_time_df <- ranking_time_df %>% 
   filter(order_var == 1)
 
 # Save.
-write.csv(no1_time_df, file = "output/no1_time.csv")
+write.csv(no1_time_df, file = paste0("output/no1_time_", scrape_folder, ".csv"))
 
-# Select a 24-hour time period (if wanted).
-scrapes_clean_df <- scrapes_clean_df %>%
-  filter(date(scrape_date) == "2024-01-31")
+# # Select a 24-hour time period (if wanted).
+# scrapes_clean_df <- scrapes_clean_df %>%
+#   filter(date(scrape_date) == "2024-01-31")
 
 # What's your keyword(s)?
-interest_words <- "ukraine|russia|putin|zalensky"
+interest_words <- "putin"
 
 # Identify a specific story.
 scrapes_clean_df <- scrapes_clean_df %>%
